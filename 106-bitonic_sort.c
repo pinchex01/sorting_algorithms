@@ -1,9 +1,11 @@
-/*
- * File: function that sorts an array of integers in ascending 
- * using the Bitonic sort algorithm
- */
-
 #include "sort.h"
+/**
+ * swap - swaps elements of the array checking the position
+ * @array: Array with numbers to be sorted
+ * @i: position
+ * @j: position
+ * @dir: 1 if is ascending
+ */
 
 void swap_ints(int *a, int *b);
 void bitonic_merge(int *array, size_t size, size_t start, size_t seq,

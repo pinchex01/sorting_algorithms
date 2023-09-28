@@ -1,95 +1,141 @@
-#include "sort.h"
+#include "deck.h"
 
-void swap_ints(int *a, int *b);
-int hoare_partition(int *array, size_t size, int left, int right);
-void hoare_sort(int *array, size_t size, int left, int right);
-void quick_sort_hoare(int *array, size_t size);
+int _strcmp(const char *s1, const char *s2);
+char get_value(deck_node_t *card);
+void insertion_sort_deck_kind(deck_node_t **deck);
+void insertion_sort_deck_value(deck_node_t **deck);
+void sort_deck(deck_node_t **deck);
 
 /**
- * swap_ints - Swap two integers in an array.
- * @a: The first integer to swap.
- * @b: The second integer to swap.
+ * _strcmp - Compares two strings.
+ * @s1: The first string to be compared.
+ * @s2: The second string to be compared.
+ *
+ * Return: Positive byte difference if s1 > s2
+ *         0 if s1 == s2
+ *         Negative byte difference if s1 < s2
  */
-void swap_ints(int *a, int *b)
+int _strcmp(const char *s1, const char *s2)
 {
-	int tmp;
+	while (*s1 && *s2 && *s1 == *s2)
+	{
+		s1++;
+		s2++;
+	}
 
-	tmp = *a;
-	*a = *b;
-	*b = tmp;
+	if (*s1 != *s2)
+		return (*s1 - *s2);
+	return (0);
 }
 
 /**
- * hoare_partition - Order a subset of an array of integers
- *                   according to the hoare partition scheme.
- * @array: The array of integers.
- * @size: The size of the array.
- * @left: The starting index of the subset to order.
- * @right: The ending index of the subset to order.
+ * get_value - Get the numerical value of a card.
+ * @card: A pointer to a deck_node_t card.
  *
- * Return: The final partition index.
- *
- * Description: Uses the last element of the partition as the pivot.
- * Prints the array after each swap of two elements.
+ * Return: The numerical value of the card.
  */
-int hoare_partition(int *array, size_t size, int left, int right)
+char get_value(deck_node_t *card)
 {
-	int pivot, above, below;
+	if (_strcmp(card->card->value, "Ace") == 0)
+		return (0);
+	if (_strcmp(card->card->value, "1") == 0)
+		return (1);
+	if (_strcmp(card->card->value, "2") == 0)
+		return (2);
+	if (_strcmp(card->card->value, "3") == 0)
+		return (3);
+	if (_strcmp(card->card->value, "4") == 0)
+		return (4);
+	if (_strcmp(card->card->value, "5") == 0)
+		return (5);
+	if (_strcmp(card->card->value, "6") == 0)
+		return (6);
+	if (_strcmp(card->card->value, "7") == 0)
+		return (7);
+	if (_strcmp(card->card->value, "8") == 0)
+		return (8);
+	if (_strcmp(card->card->value, "9") == 0)
+		return (9);
+	if (_strcmp(card->card->value, "10") == 0)
+		return (10);
+	if (_strcmp(card->card->value, "Jack") == 0)
+		return (11);
+	if (_strcmp(card->card->value, "Queen") == 0)
+		return (12);
+	return (13);
+}
 
-	pivot = array[right];
-	for (above = left - 1, below = right + 1; above < below;)
+/**
+ * insertion_sort_deck_kind - Sort a deck of cards from spades to diamonds.
+ * @deck: A pointer to the head of a deck_node_t doubly-linked list.
+ */
+void insertion_sort_deck_kind(deck_node_t **deck)
+{
+	deck_node_t *iter, *insert, *tmp;
+
+	for (iter = (*deck)->next; iter != NULL; iter = tmp)
 	{
-		do {
-			above++;
-		} while (array[above] < pivot);
-		do {
-			below--;
-		} while (array[below] > pivot);
-
-		if (above < below)
+		tmp = iter->next;
+		insert = iter->prev;
+		while (insert != NULL && insert->card->kind > iter->card->kind)
 		{
-			swap_ints(array + above, array + below);
-			print_array(array, size);
+			insert->next = iter->next;
+			if (iter->next != NULL)
+				iter->next->prev = insert;
+			iter->prev = insert->prev;
+			iter->next = insert;
+			if (insert->prev != NULL)
+				insert->prev->next = iter;
+			else
+				*deck = iter;
+			insert->prev = iter;
+			insert = iter->prev;
 		}
 	}
-
-	return (above);
 }
 
 /**
- * hoare_sort - Implement the quicksort algorithm through recursion.
- * @array: An array of integers to sort.
- * @size: The size of the array.
- * @left: The starting index of the array partition to order.
- * @right: The ending index of the array partition to order.
- *
- * Description: Uses the Hoare partition scheme.
+ * insertion_sort_deck_value - Sort a deck of cards sorted from
+ *                             spades to diamonds from ace to king.
+ * @deck: A pointer to the head of a deck_node_t doubly-linked list.
  */
-void hoare_sort(int *array, size_t size, int left, int right)
+void insertion_sort_deck_value(deck_node_t **deck)
 {
-	int part;
+	deck_node_t *iter, *insert, *tmp;
 
-	if (right - left > 0)
+	for (iter = (*deck)->next; iter != NULL; iter = tmp)
 	{
-		part = hoare_partition(array, size, left, right);
-		hoare_sort(array, size, left, part - 1);
-		hoare_sort(array, size, part, right);
+		tmp = iter->next;
+		insert = iter->prev;
+		while (insert != NULL &&
+		       insert->card->kind == iter->card->kind &&
+		       get_value(insert) > get_value(iter))
+		{
+			insert->next = iter->next;
+			if (iter->next != NULL)
+				iter->next->prev = insert;
+			iter->prev = insert->prev;
+			iter->next = insert;
+			if (insert->prev != NULL)
+				insert->prev->next = iter;
+			else
+				*deck = iter;
+			insert->prev = iter;
+			insert = iter->prev;
+		}
 	}
 }
 
 /**
- * quick_sort_hoare - Sort an array of integers in ascending
- *                    order using the quicksort algorithm.
- * @array: An array of integers.
- * @size: The size of the array.
- *
- * Description: Uses the Hoare partition scheme. Prints
- * the array after each swap of two elements.
+ * sort_deck - Sort a deck of cards from ace to king and
+ *             from spades to diamonds.
+ * @deck: A pointer to the head of a deck_node_t doubly-linked list.
  */
-void quick_sort_hoare(int *array, size_t size)
+void sort_deck(deck_node_t **deck)
 {
-	if (array == NULL || size < 2)
+	if (deck == NULL || *deck == NULL || (*deck)->next == NULL)
 		return;
 
-	hoare_sort(array, size, 0, size - 1);
+	insertion_sort_deck_kind(deck);
+	insertion_sort_deck_value(deck);
 }
